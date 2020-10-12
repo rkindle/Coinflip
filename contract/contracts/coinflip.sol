@@ -17,7 +17,7 @@ contract Coinflip is Ownable, usingProvable{
   }
 
   event coinflipResult(uint result, uint winnings);
-  event uncoughtException(uint step);
+  event uncoughtException(string message);
   event hasBeenWithdrawn(uint toTransfer);
   event playerCreated(string message);
   event playerUpdated(uint lastResult, uint lastWin, uint totalWin, uint totalPlay, uint totalWon);
@@ -30,7 +30,6 @@ contract Coinflip is Ownable, usingProvable{
   mapping (bytes32 => address) private queries;
   address[] private players;
   uint constant NUM_RANDOM_BYTES_REQUESTED = 1;
-  uint private latestNumber;
 
   function createPlayer() private{
     Player memory newPlayer;
@@ -112,7 +111,7 @@ contract Coinflip is Ownable, usingProvable{
     uint QUERY_EXECUTION_DELAY = 0;
     uint GAS_FOR_CALLBACK = 2000000;
     bytes32 queryId = provable_newRandomDSQuery( QUERY_EXECUTION_DELAY, NUM_RANDOM_BYTES_REQUESTED, GAS_FOR_CALLBACK);
-    updatePlayerQuery(creator, queryId, 0);
+    updatePlayerQuery(creator, queryId, 100);
     emit logNewProvableQuery("Provable query sent, waiting for response...");
   }
 
@@ -174,7 +173,7 @@ contract Coinflip is Ownable, usingProvable{
       creator.transfer(winnings);
     }
     else{
-      emit uncoughtException(1);
+      emit uncoughtException("Random Number not updated - RESULT NOT 1 OR 0");
     }
     updatePlayer(winner, winnings);
     emit coinflipResult(res, winnings);
