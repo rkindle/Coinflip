@@ -12,6 +12,7 @@
   "author": "Kinratec",
   "license": "ISC",
   "dependencies": {
+    "@truffle/hdwallet-provider": "^1.1.1",
     "truffle-hdwallet-provider": "^1.0.17"
   }
 }
