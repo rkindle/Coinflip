@@ -59,24 +59,24 @@ contract Coinflip is Ownable, usingProvable{
   }
 
   function updatePlayer(uint _lastResult, uint _lastWin) private {
-    address creator = msg.sender;
-    player[creator].lastResult = _lastResult;
-    player[creator].lastWin = _lastWin;
-    player[creator].totalWin += _lastResult;
-    player[creator].totalPlay += 1;
-    player[creator].totalWon += _lastWin;
-    emit playerUpdated(player[creator].lastResult, player[creator].lastWin, player[creator].totalWin, player[creator].totalPlay, player[creator].totalWon);
+    address _creator = msg.sender;
+    player[_creator].lastResult = _lastResult;
+    player[_creator].lastWin = _lastWin;
+    player[_creator].totalWin += _lastResult;
+    player[_creator].totalPlay += 1;
+    player[_creator].totalWon += _lastWin;
+    emit playerUpdated(player[_creator].lastResult, player[_creator].lastWin, player[_creator].totalWin, player[_creator].totalPlay, player[_creator].totalWon);
   }
 
   function updatePlayerQuery(address _creator, bytes32 _queryId, uint _randomNumber) private {
     queries[_queryId] = _creator;
-    player[creator].queryId = _queryId;
-    player[creator].lastRandomNumber = _randomNumber;
+    player[_creator].queryId = _queryId;
+    player[_creator].lastRandomNumber = _randomNumber;
     emit playerQueryUpdate("Player query updated");
   }
 
   function updateBetValue(address _creator, uint _betValue) private{
-    player[_creator].lastBetValue = _betValue
+    player[_creator].lastBetValue = _betValue;
   }
 
 
@@ -97,7 +97,7 @@ contract Coinflip is Ownable, usingProvable{
   }*/
 
   function __callback(bytes32 _queryId, string memory _result, bytes memory _proof) public {
-    require(msg.sender == provable_cbAdress());
+    require(msg.sender == provable_cbAddress());
     address creator = queries[_queryId];
 
     uint randomNumber = uint(keccak256(abi.encodePacked(_result))) % 2;
@@ -155,22 +155,23 @@ contract Coinflip is Ownable, usingProvable{
     */
   }
 
-  function payout(address creator) private{
+  function payout(address _creator) private{
     uint winnings;
-    require(player[creator].queryId == 0, "No payout, query still pending");
+    uint winner;
+    require(player[_creator].queryId == 0, "No payout, query still pending");
 
-    uint res = player[creator].lastRandomNumber;
+    uint res = player[_creator].lastRandomNumber;
 
     if(res == 0){
       winner = 0;
-      balance = balance + bet_value;
+      balance = balance + player[_creator].lastBetValue;
       winnings = 0;
     }
     else if(res == 1){
       winner = 1;
-      winnings = 2* player[creator].lastBetValue;
-      balance = balance - player[creator].lastBetValue;
-      creator.transfer(winnings);
+      winnings = 2* player[_creator].lastBetValue;
+      balance = balance - player[_creator].lastBetValue;
+      _creator.transfer(winnings);      //THis needs to be converted to payable address
     }
     else{
       emit uncoughtException("Random Number not updated - RESULT NOT 1 OR 0");
@@ -205,7 +206,7 @@ contract Coinflip is Ownable, usingProvable{
     return balance;
   }
 
-  function isQueryPending() public view retruns(uint){
+  function isQueryPending() public view returns(uint){
     address creator = msg.sender;
     if(player[creator].queryId == 0){
       return 0;
