@@ -106,7 +106,7 @@ contract Coinflip is Ownable, usingProvable{
     emit generatedRandomNumber(randomNumber);
   }
 
-  function oracleRandom() payable private {
+  function oracleRandom() private {
     address creator = msg.sender;
     uint QUERY_EXECUTION_DELAY = 0;
     uint GAS_FOR_CALLBACK = 2000000;
@@ -158,6 +158,7 @@ contract Coinflip is Ownable, usingProvable{
   function payout(address _creator) private{
     uint winnings;
     uint winner;
+    address payable payCreator = address(uint160(_creator));
     require(player[_creator].queryId == 0, "No payout, query still pending");
 
     uint res = player[_creator].lastRandomNumber;
@@ -171,7 +172,7 @@ contract Coinflip is Ownable, usingProvable{
       winner = 1;
       winnings = 2* player[_creator].lastBetValue;
       balance = balance - player[_creator].lastBetValue;
-      _creator.transfer(winnings);      //THis needs to be converted to payable address
+      payCreator.transfer(winnings);
     }
     else{
       emit uncoughtException("Random Number not updated - RESULT NOT 1 OR 0");
