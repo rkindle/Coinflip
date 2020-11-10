@@ -24,6 +24,9 @@ contract Coinflip is Ownable, usingProvable{
   event playerQueryUpdate(string message);
   event generatedRandomNumber(uint randomNumber);
   event logNewProvableQuery(string message);
+  event logNewQueryResponse(string message);
+  event newPayoutInitiated(string message);
+  event showResult(uint res);
 
   uint private balance;
   mapping (address => Player) private player;
@@ -104,6 +107,7 @@ contract Coinflip is Ownable, usingProvable{
     updatePlayerQuery(creator, 0, randomNumber);
     payout(creator);
     emit generatedRandomNumber(randomNumber);
+    emit logNewQueryResponse("Query response received");
   }
 
   function oracleRandom() private {
@@ -112,6 +116,7 @@ contract Coinflip is Ownable, usingProvable{
     uint GAS_FOR_CALLBACK = 2000000;
     bytes32 queryId = provable_newRandomDSQuery( QUERY_EXECUTION_DELAY, NUM_RANDOM_BYTES_REQUESTED, GAS_FOR_CALLBACK);
     updatePlayerQuery(creator, queryId, 100);
+    balance = balance - GAS_FOR_CALLBACK;
     emit logNewProvableQuery("Provable query sent, waiting for response...");
   }
 
@@ -162,6 +167,8 @@ contract Coinflip is Ownable, usingProvable{
     require(player[_creator].queryId == 0, "No payout, query still pending");
 
     uint res = player[_creator].lastRandomNumber;
+    emit newPayoutInitiated("Payout initiated with resutl");
+    emit showResult(res);
 
     if(res == 0){
       winner = 0;
