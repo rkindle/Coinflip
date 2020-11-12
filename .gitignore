@@ -1,4 +1,5 @@
 .secret
 node_modules/
-.secret  $ git rm --cached .secret rm '.secret' $ git commit -m "Start ignoring .secret" 
-node_modules  $ git rm --cached node_modules rm 'nodemodules' $ git commit -m "Start ignoring node_modules" 
+build
+.secret  $ git rm --cached .secret rm '.secret' $ git commit -m "Start ignoring .secret"
+node_modules  $ git rm --cached node_modules rm 'nodemodules' $ git commit -m "Start ignoring node_modules"
