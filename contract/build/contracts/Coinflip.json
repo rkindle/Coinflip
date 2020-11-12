@@ -19517,11 +19517,50 @@
           ],
           "name": "uncoughtException",
           "type": "event"
+        },
+        "0xe80e89978b593ab4072e6ca63de1dcd5e2e982a30ed2c2e68b056a496237ed4a": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "string",
+              "name": "message",
+              "type": "string"
+            }
+          ],
+          "name": "logNewQueryResponse",
+          "type": "event"
+        },
+        "0x15a5ee7679db7f4ed3d927d0d4272e28f603ea24efb99f628384d9a7e1c74373": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "string",
+              "name": "message",
+              "type": "string"
+            }
+          ],
+          "name": "newPayoutInitiated",
+          "type": "event"
+        },
+        "0xed6ad2f84ff9379c0261f2ba89850d87d385f1f35c6d1254dd6b54f946a0567e": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "res",
+              "type": "uint256"
+            }
+          ],
+          "name": "showResult",
+          "type": "event"
         }
       },
       "links": {},
-      "address": "0xB9E4304B044b14bca2031213B5BF986f40BA5139",
-      "transactionHash": "0xcdf03045cf62f2ec3fa1d6f2afd548b14429404938d56fa840c74892ccd57372"
+      "address": "0x66A1b8CAB7121D3D1BA4FD6C8094e73e0b4116A2",
+      "transactionHash": "0x65b10840c7a80882dd4d87e14aa209ac57721238d41ea2dde66018baf4dc6725"
     },
     "5777": {
       "events": {
@@ -19731,7 +19770,8 @@
     }
   },
   "schemaVersion": "3.0.23",
-  "updatedAt": "2020-11-12T19:57:53.049Z",
+  "updatedAt": "2020-11-12T20:08:21.189Z",
+  "networkType": "ethereum",
   "devdoc": {
     "methods": {
       "__callback(bytes32,string)": {
