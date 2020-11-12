@@ -3,3 +3,4 @@ contract/node_modules/
 contract/build/
 .secret  $ git rm --cached .secret rm '.secret' $ git commit -m "Start ignoring .secret"
 node_modules  $ git rm --cached node_modules rm 'nodemodules' $ git commit -m "Start ignoring node_modules"
+build  $ git rm --cached build rm 'build' $ git commit -m "Start ignore build" 
