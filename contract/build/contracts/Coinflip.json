@@ -19684,15 +19684,54 @@
           ],
           "name": "uncoughtException",
           "type": "event"
+        },
+        "0xe80e89978b593ab4072e6ca63de1dcd5e2e982a30ed2c2e68b056a496237ed4a": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "string",
+              "name": "message",
+              "type": "string"
+            }
+          ],
+          "name": "logNewQueryResponse",
+          "type": "event"
+        },
+        "0x15a5ee7679db7f4ed3d927d0d4272e28f603ea24efb99f628384d9a7e1c74373": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "string",
+              "name": "message",
+              "type": "string"
+            }
+          ],
+          "name": "newPayoutInitiated",
+          "type": "event"
+        },
+        "0xed6ad2f84ff9379c0261f2ba89850d87d385f1f35c6d1254dd6b54f946a0567e": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "internalType": "uint256",
+              "name": "res",
+              "type": "uint256"
+            }
+          ],
+          "name": "showResult",
+          "type": "event"
         }
       },
       "links": {},
-      "address": "0x1b891aD0CB2a626f64F222B810d788492c737423",
-      "transactionHash": "0xb43ebf085b62296b53afca9cc44789c51cce03bf07219b5d9a1f6158e2b28afd"
+      "address": "0x774DF21eA19d1da0e201fe6Bd2EabEb45D7B507E",
+      "transactionHash": "0xa9968557f921ff27c1712b23ed1764a03192bf46f2b0f95c714139da6fc1c79c"
     }
   },
   "schemaVersion": "3.0.23",
-  "updatedAt": "2020-11-12T19:28:53.462Z",
+  "updatedAt": "2020-11-12T19:45:13.343Z",
   "devdoc": {
     "methods": {
       "__callback(bytes32,string)": {
