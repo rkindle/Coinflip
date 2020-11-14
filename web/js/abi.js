@@ -67,6 +67,32 @@ var abi = [
         "type": "string"
       }
     ],
+    "name": "logNewQueryResponse",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "message",
+        "type": "string"
+      }
+    ],
+    "name": "newPayoutInitiated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "message",
+        "type": "string"
+      }
+    ],
     "name": "playerCreated",
     "type": "event"
   },
@@ -125,6 +151,19 @@ var abi = [
     "inputs": [
       {
         "indexed": false,
+        "internalType": "uint256",
+        "name": "res",
+        "type": "uint256"
+      }
+    ],
+    "name": "showResult",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
         "internalType": "string",
         "name": "message",
         "type": "string"
@@ -156,6 +195,11 @@ var abi = [
       {
         "internalType": "uint256",
         "name": "lastResult",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lastBetValue",
         "type": "uint256"
       },
       {
@@ -233,6 +277,21 @@ var abi = [
     "inputs": [],
     "name": "coinFlip",
     "outputs": [],
+    "payable": true,
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [],
+    "name": "payout",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "payable": true,
     "stateMutability": "payable",
     "type": "function"
