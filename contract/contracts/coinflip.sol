@@ -14,6 +14,7 @@ contract Coinflip is Ownable, usingProvable{
     uint totalWin;
     uint totalPlay;
     uint totalWon;
+    uint lastWinPayed;
   }
 
   event coinflipResult(uint result, uint winnings);
@@ -38,12 +39,13 @@ contract Coinflip is Ownable, usingProvable{
     Player memory newPlayer;
     newPlayer.id = 1;
     newPlayer.queryId = 0;
-    newPlayer.lastRandomNumber = 0;
+    newPlayer.lastRandomNumber = 99;
     newPlayer.lastBetValue = 0;
     newPlayer.lastWin = 0;
     newPlayer.totalWin = 0;
     newPlayer.totalPlay = 0;
     newPlayer.totalWon = 0;
+    newPlayer.lastWinPayed = 1;
 
     insertPlayer(newPlayer);
     players.push(msg.sender);
@@ -69,6 +71,10 @@ contract Coinflip is Ownable, usingProvable{
     player[_creator].totalPlay += 1;
     player[_creator].totalWon += _lastWin;
     emit playerUpdated(player[_creator].lastResult, player[_creator].lastWin, player[_creator].totalWin, player[_creator].totalPlay, player[_creator].totalWon);
+  }
+
+  function updatePlayerPayout(address _crator, uint _lastWinPayed) private{
+    palyer[_creator].lastWinPayed = _lastWinPayed;
   }
 
   function updatePlayerQuery(address _creator, bytes32 _queryId, uint _randomNumber) private {
@@ -102,33 +108,12 @@ contract Coinflip is Ownable, usingProvable{
   function __callback(bytes32 _queryId, string memory _result, bytes memory _proof) public {
     require(msg.sender == provable_cbAddress());
     address creator = queries[_queryId];
+    updatePlayerPayout(creator, 0);
 
     emit logNewQueryResponse("Query response received");
 
     uint randomNumber = uint(keccak256(abi.encodePacked(_result))) % 2;
     updatePlayerQuery(creator, 0, randomNumber);
-    // payout(creator);
-    uint winnings;
-    uint winner;
-    address payable payCreator = address(uint160(creator));
-
-    if(randomNumber == 0){
-      winner = 0;
-      balance = balance + player[creator].lastBetValue;
-      winnings = 0;
-    }
-    else if(randomNumber == 1){
-      winner = 1;
-      winnings = 2* player[creator].lastBetValue;
-      balance = balance - player[creator].lastBetValue;
-      payCreator.transfer(winnings);
-    }
-    else{
-      emit uncoughtException("Random Number not updated - RESULT NOT 1 OR 0");
-    }
-    updatePlayer(winner, winnings);
-    emit coinflipResult(res, winnings);
-
     emit generatedRandomNumber(randomNumber);
   }
 
@@ -182,33 +167,37 @@ contract Coinflip is Ownable, usingProvable{
     */
   }
 
-  /* function payout(address _creator) private{
+  function payout() public payable returns(uint){
     uint winnings;
     uint winner;
-    address payable payCreator = address(uint160(_creator));
-    require(player[_creator].queryId == 0, "No payout, query still pending");
+    address payable payCreator = msg.sender;
+    require(player[payCreator].queryId == 0, "No payout, query still pending");
 
-    uint res = player[_creator].lastRandomNumber;
-    emit newPayoutInitiated("Payout initiated with resutl");
+    uint res = player[payCreator].lastRandomNumber;
+    emit newPayoutInitiated("Payout initiated with result");
     emit showResult(res);
 
     if(res == 0){
       winner = 0;
-      balance = balance + player[_creator].lastBetValue;
+      balance = balance + player[payCreator].lastBetValue;
       winnings = 0;
     }
     else if(res == 1){
       winner = 1;
-      winnings = 2* player[_creator].lastBetValue;
-      balance = balance - player[_creator].lastBetValue;
-      payCreator.transfer(winnings);
+      winnings = 2* player[payCreator].lastBetValue;
+      balance = balance - player[payCreator].lastBetValue;
+      if (player[payCreator].lastWinPayed) == 0){
+        payCreator.transfer(winnings);
+      }
     }
     else{
       emit uncoughtException("Random Number not updated - RESULT NOT 1 OR 0");
     }
     updatePlayer(winner, winnings);
+    updatePlayerPayout(payCreator, 1);
     emit coinflipResult(res, winnings);
-  } */
+    return winnings;
+  }
 
   function depositeBalance() public onlyOwner payable returns(uint) {
       uint newBalance = balance + msg.value;

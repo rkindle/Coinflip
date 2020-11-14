@@ -1,6 +1,6 @@
 var web3 = new Web3(Web3.givenProvider);
 var contractInstance;
-var contractAddress = "0x66A1b8CAB7121D3D1BA4FD6C8094e73e0b4116A2";
+var contractAddress = "0x8dB0dc00E8960AccF2dFcD9894C3edF834B9C712";
 
 $(document).ready(function() {
     window.ethereum.enable().then(function(accounts){
@@ -31,10 +31,12 @@ function flipCoin(){
   .on("receipt", function(receipt){
     console.log(receipt);
   }).then(function(){
-    //var event = contractInstance
-    //while (checkForQuery() == 1){
-    //  var m = m++;
-    //}
+    var queryPending = checkForQuery();
+    while (queryPending == 1){
+      setTimeout(() => { console.log('Result not received yet');}, 2000);
+      queryPending = checkForQuery();
+    }
+
     jackpotBalance();
     lastResult();
   })
@@ -114,6 +116,22 @@ function lastResult(){
 
 function checkForQuery(){
   contractInstance.methods.isQueryPending().call().then(function(res){
-    return res;
+    if (res == 0){
+      contractInstance.methods.payout().send()
+      .on("transactionHash", function(hash){
+        console.log(hash);
+      })
+      .on("confirmation", function(confirmationNr){
+        console.log(confirmationNr);
+      })
+      .on("receipt", function(receipt){
+        console.log(receipt);
+        jackpotBalance();
+      })
+      return 0;
+    }
+    else{
+      return 1;
+    }
   })
 }
