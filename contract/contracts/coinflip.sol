@@ -58,9 +58,9 @@ contract Coinflip is Ownable, usingProvable{
     player[creator] = _newPlayer;
   }
 
-  function getPlayer() public view returns(uint lastResult, uint lastWin, uint totalWin, uint totalPlay, uint totalWon){
+  function getPlayer() public view returns(uint lastResult, uint lastBetValue, uint lastWin, uint totalWin, uint totalPlay, uint totalWon){
     address creator = msg.sender;
-    return (player[creator].lastResult, player[creator].lastWin, player[creator].totalWin, player[creator].totalPlay, player[creator].totalWon);
+    return (player[creator].lastResult, player[creator].lastBetValue, player[creator].lastWin, player[creator].totalWin, player[creator].totalPlay, player[creator].totalWon);
   }
 
   function updatePlayer(uint _lastResult, uint _lastWin) private {
@@ -186,7 +186,7 @@ contract Coinflip is Ownable, usingProvable{
       winner = 1;
       winnings = 2* player[payCreator].lastBetValue;
       balance = balance - player[payCreator].lastBetValue;
-      if (player[payCreator].lastWinPayed) == 0){
+      if (player[payCreator].lastWinPayed == 0){
         payCreator.transfer(winnings);
       }
     }

@@ -110,6 +110,7 @@ function lastResult(){
     else{
       $("#result").text("Lost");
     }
+    $("#lastBetAmount").text(web3.utils.fromWei(res.lastBetValue, 'ether'));
     $("#value_won").text(web3.utils.fromWei(res.lastWin, 'ether'));
   })
 }
