@@ -103,11 +103,33 @@ contract Coinflip is Ownable, usingProvable{
     require(msg.sender == provable_cbAddress());
     address creator = queries[_queryId];
 
+    emit logNewQueryResponse("Query response received");
+
     uint randomNumber = uint(keccak256(abi.encodePacked(_result))) % 2;
     updatePlayerQuery(creator, 0, randomNumber);
-    payout(creator);
+    // payout(creator);
+    uint winnings;
+    uint winner;
+    address payable payCreator = address(uint160(creator));
+
+    if(randomNumber == 0){
+      winner = 0;
+      balance = balance + player[creator].lastBetValue;
+      winnings = 0;
+    }
+    else if(randomNumber == 1){
+      winner = 1;
+      winnings = 2* player[creator].lastBetValue;
+      balance = balance - player[creator].lastBetValue;
+      payCreator.transfer(winnings);
+    }
+    else{
+      emit uncoughtException("Random Number not updated - RESULT NOT 1 OR 0");
+    }
+    updatePlayer(winner, winnings);
+    emit coinflipResult(res, winnings);
+
     emit generatedRandomNumber(randomNumber);
-    emit logNewQueryResponse("Query response received");
   }
 
   function oracleRandom() private {
@@ -160,7 +182,7 @@ contract Coinflip is Ownable, usingProvable{
     */
   }
 
-  function payout(address _creator) private{
+  /* function payout(address _creator) private{
     uint winnings;
     uint winner;
     address payable payCreator = address(uint160(_creator));
@@ -186,7 +208,7 @@ contract Coinflip is Ownable, usingProvable{
     }
     updatePlayer(winner, winnings);
     emit coinflipResult(res, winnings);
-  }
+  } */
 
   function depositeBalance() public onlyOwner payable returns(uint) {
       uint newBalance = balance + msg.value;
