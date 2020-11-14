@@ -123,7 +123,7 @@ contract Coinflip is Ownable, usingProvable{
     uint GAS_FOR_CALLBACK = 2000000;
     bytes32 queryId = provable_newRandomDSQuery( QUERY_EXECUTION_DELAY, NUM_RANDOM_BYTES_REQUESTED, GAS_FOR_CALLBACK);
     updatePlayerQuery(creator, queryId, 100);
-    balance = balance - GAS_FOR_CALLBACK;
+    balance = balance - 20000000000000000;
     emit logNewProvableQuery("Provable query sent, waiting for response...");
   }
 

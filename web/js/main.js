@@ -1,6 +1,6 @@
 var web3 = new Web3(Web3.givenProvider);
 var contractInstance;
-var contractAddress = "0x1A9193C468cd95d762fa3815d68f7FA37dAF0D5A";
+var contractAddress = "0xD7342BF10C4bCd2c9E7aa48DF25Cf171EcAf7408";
 
 $(document).ready(function() {
     window.ethereum.enable().then(function(accounts){
@@ -12,6 +12,7 @@ $(document).ready(function() {
     $("#withdrawPartial").click(withdrawPartial);
     $("#withdrawAll").click(withdrawAll);
     $("#refresh").click(jackpotBalance);
+    $("#getPlayer").click(lastResult);
 });
 
 function flipCoin(){
@@ -106,12 +107,13 @@ function lastResult(){
   contractInstance.methods.getPlayer().call().then(function(res){
     if (res.lastResult == 1){
       $("#result").text("Won");
+      $("#value_won").text(web3.utils.fromWei(res.lastWin, 'ether'));
     }
     else{
       $("#result").text("Lost");
+      $("#value_won").text(0);
     }
-    $("#lastBetAmount").text(web3.utils.fromWei(res.lastBetValue, 'ether'));
-    $("#value_won").text(web3.utils.fromWei(res.lastWin, 'ether'));
+    $("#lastBetAmount").text(res.lastBetValue);
   })
 }
 
