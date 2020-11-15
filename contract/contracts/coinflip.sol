@@ -124,7 +124,7 @@ contract Coinflip is Ownable, usingProvable{
     uint GAS_FOR_CALLBACK = 2000000;
     bytes32 queryId = provable_newRandomDSQuery( QUERY_EXECUTION_DELAY, NUM_RANDOM_BYTES_REQUESTED, GAS_FOR_CALLBACK);
     updatePlayerQuery(creator, queryId, 100);
-    balance = balance - 20000000000000000;
+    balance = this.balance;
     emit logNewProvableQuery("Provable query sent, waiting for response...");
   }
 
@@ -181,13 +181,13 @@ contract Coinflip is Ownable, usingProvable{
 
     if(res == 0){
       winner = 0;
-      balance = balance + player[payCreator].lastBetValue;
+      balance = this.balance + player[payCreator].lastBetValue;
       winnings = 0;
     }
     else if(res == 1){
       winner = 1;
       winnings = 2* player[payCreator].lastBetValue;
-      balance = balance - player[payCreator].lastBetValue;
+      balance = this.balance - player[payCreator].lastBetValue;
       if (player[payCreator].lastWinPayed == 0){
         payCreator.transfer(winnings);
       }
@@ -202,13 +202,13 @@ contract Coinflip is Ownable, usingProvable{
   }
 
   function depositeBalance() public onlyOwner payable returns(uint) {
-      uint newBalance = balance + msg.value;
+      uint newBalance = this.balance + msg.value;
       balance = newBalance;
       return newBalance;
   }
 
   function withdrawAll() public onlyOwner payable returns(uint) {
-      uint toTransfer = balance;
+      uint toTransfer = this.balance;
       balance = 0;
       msg.sender.transfer(toTransfer);
       emit hasBeenWithdrawn(toTransfer);
@@ -216,15 +216,15 @@ contract Coinflip is Ownable, usingProvable{
   }
 
   function withdrawAmount(uint _amount) public onlyOwner payable returns(uint) {
-      require(_amount <= balance, "Requested amount exeeds current balance");
-      balance = balance - _amount;
+      require(_amount <= this.balance, "Requested amount exeeds current balance");
+      balance = this.balance - _amount;
       msg.sender.transfer(_amount);
       emit hasBeenWithdrawn(_amount);
       return _amount;
   }
 
   function getBalance() public view returns(uint){
-    return balance;
+    return this.balance;
   }
 
   function isQueryPending() public view returns(uint){
