@@ -28,6 +28,7 @@ contract Coinflip is Ownable, usingProvable{
   event logNewQueryResponse(string message);
   event newPayoutInitiated(string message);
   event showResult(uint res);
+  event currentBetValue(uint value);
 
   uint private balance;
   mapping (address => Player) private player;
@@ -133,6 +134,7 @@ contract Coinflip is Ownable, usingProvable{
     address creator = msg.sender;
     //uint winnings;
     //uint winner;
+    emit currentBetValue(bet_value);
     require(msg.value <= balance, "Insufficient contract balance");
     require(player[creator].queryId == 0, "Current result pending");
 
