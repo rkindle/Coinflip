@@ -1,6 +1,6 @@
 var web3 = new Web3(Web3.givenProvider);
 var contractInstance;
-var contractAddress = "0xD7342BF10C4bCd2c9E7aa48DF25Cf171EcAf7408";
+var contractAddress = "0xD554bD09477703950F79ADaF0Cb08Ef5082Da727";
 
 $(document).ready(function() {
     window.ethereum.enable().then(function(accounts){
@@ -113,7 +113,7 @@ function lastResult(){
       $("#result").text("Lost");
       $("#value_won").text(0);
     }
-    $("#lastBetAmount").text(res.lastBetValue);
+    $("#lastBetAmount").text(web3.utils.fromWei(res.lastBetValue, 'ether'));
   })
 }
 
