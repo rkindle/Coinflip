@@ -124,7 +124,7 @@ contract Coinflip is Ownable, usingProvable{
     uint GAS_FOR_CALLBACK = 2000000;
     bytes32 queryId = provable_newRandomDSQuery( QUERY_EXECUTION_DELAY, NUM_RANDOM_BYTES_REQUESTED, GAS_FOR_CALLBACK);
     updatePlayerQuery(creator, queryId, 100);
-    balance = this.balance;
+    balance = address(this).balance;
     emit logNewProvableQuery("Provable query sent, waiting for response...");
   }
 
@@ -135,7 +135,7 @@ contract Coinflip is Ownable, usingProvable{
     //uint winnings;
     //uint winner;
     emit currentBetValue(bet_value);
-    require(msg.value <= balance, "Insufficient contract balance");
+    require(msg.value <= address(this).balance, "Insufficient contract balance");
     require(player[creator].queryId == 0, "Current result pending");
 
     if (playerNotExists()){
@@ -181,13 +181,13 @@ contract Coinflip is Ownable, usingProvable{
 
     if(res == 0){
       winner = 0;
-      balance = this.balance + player[payCreator].lastBetValue;
+      balance = address(this).balance + player[payCreator].lastBetValue;
       winnings = 0;
     }
     else if(res == 1){
       winner = 1;
       winnings = 2* player[payCreator].lastBetValue;
-      balance = this.balance - player[payCreator].lastBetValue;
+      balance = address(this).balance - player[payCreator].lastBetValue;
       if (player[payCreator].lastWinPayed == 0){
         payCreator.transfer(winnings);
       }
@@ -202,13 +202,13 @@ contract Coinflip is Ownable, usingProvable{
   }
 
   function depositeBalance() public onlyOwner payable returns(uint) {
-      uint newBalance = this.balance + msg.value;
+      uint newBalance = address(this).balance + msg.value;
       balance = newBalance;
       return newBalance;
   }
 
   function withdrawAll() public onlyOwner payable returns(uint) {
-      uint toTransfer = this.balance;
+      uint toTransfer = address(this).balance;
       balance = 0;
       msg.sender.transfer(toTransfer);
       emit hasBeenWithdrawn(toTransfer);
@@ -216,15 +216,15 @@ contract Coinflip is Ownable, usingProvable{
   }
 
   function withdrawAmount(uint _amount) public onlyOwner payable returns(uint) {
-      require(_amount <= this.balance, "Requested amount exeeds current balance");
-      balance = this.balance - _amount;
+      require(_amount <= address(this).balance, "Requested amount exeeds current balance");
+      balance = address(this).balance - _amount;
       msg.sender.transfer(_amount);
       emit hasBeenWithdrawn(_amount);
       return _amount;
   }
 
   function getBalance() public view returns(uint){
-    return this.balance;
+    return address(this).balance;
   }
 
   function isQueryPending() public view returns(uint){
