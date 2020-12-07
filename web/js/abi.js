@@ -5,17 +5,11 @@ var abi = [
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "result",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "winnings",
+        "name": "value",
         "type": "uint256"
       }
     ],
-    "name": "coinflipResult",
+    "name": "currentBetValue",
     "type": "event"
   },
   {
@@ -88,6 +82,19 @@ var abi = [
     "inputs": [
       {
         "indexed": false,
+        "internalType": "uint256",
+        "name": "payout",
+        "type": "uint256"
+      }
+    ],
+    "name": "payedOut",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
         "internalType": "string",
         "name": "message",
         "type": "string"
@@ -151,19 +158,6 @@ var abi = [
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint256",
-        "name": "res",
-        "type": "uint256"
-      }
-    ],
-    "name": "showResult",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
         "internalType": "string",
         "name": "message",
         "type": "string"
@@ -194,6 +188,11 @@ var abi = [
     "outputs": [
       {
         "internalType": "uint256",
+        "name": "lastRandomNumber",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
         "name": "lastResult",
         "type": "uint256"
       },
@@ -220,6 +219,16 @@ var abi = [
       {
         "internalType": "uint256",
         "name": "totalWon",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "lastWinPayed",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "unpayedWinnings",
         "type": "uint256"
       }
     ],
