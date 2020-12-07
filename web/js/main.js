@@ -1,6 +1,6 @@
 var web3 = new Web3(Web3.givenProvider);
 var contractInstance;
-var contractAddress = "0x09e16a369E9cE2D34075ea2b286509fCe85C7d17";
+var contractAddress = "0xC1D35B5a53207D3Ec9773EB3227f04898f1663A7";
 
 $(document).ready(function() {
     window.ethereum.enable().then(function(accounts){
