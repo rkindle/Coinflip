@@ -15,9 +15,10 @@ contract Coinflip is Ownable, usingProvable{
     uint totalPlay;
     uint totalWon;
     uint lastWinPayed;
+    uint unpayedWinnings;
   }
 
-  event coinflipResult(uint result, uint winnings);
+  event payedOut(uint payout);
   event uncoughtException(string message);
   event hasBeenWithdrawn(uint toTransfer);
   event playerCreated(string message);
@@ -27,7 +28,6 @@ contract Coinflip is Ownable, usingProvable{
   event logNewProvableQuery(string message);
   event logNewQueryResponse(string message);
   event newPayoutInitiated(string message);
-  event showResult(uint res);
   event currentBetValue(uint value);
 
   uint private balance;
@@ -47,6 +47,7 @@ contract Coinflip is Ownable, usingProvable{
     newPlayer.totalPlay = 0;
     newPlayer.totalWon = 0;
     newPlayer.lastWinPayed = 1;
+    newPlayer.unpayedWinnings = 0;
 
     insertPlayer(newPlayer);
     players.push(msg.sender);
@@ -59,18 +60,25 @@ contract Coinflip is Ownable, usingProvable{
     player[creator] = _newPlayer;
   }
 
-  function getPlayer() public view returns(uint lastResult, uint lastBetValue, uint lastWin, uint totalWin, uint totalPlay, uint totalWon){
+  function getPlayer() public view returns(uint lastRandomNumber, uint lastResult, uint lastBetValue, uint lastWin, uint totalWin, uint totalPlay, uint totalWon, uint lastWinPayed){
     address creator = msg.sender;
-    return (player[creator].lastResult, player[creator].lastBetValue, player[creator].lastWin, player[creator].totalWin, player[creator].totalPlay, player[creator].totalWon);
+    return (player[creator].lastRandomNumber, player[creator].lastResult, player[creator].lastBetValue,
+      player[creator].lastWin, player[creator].totalWin, player[creator].totalPlay, player[creator].totalWon,
+      player[creator].lastWinPayed);
   }
 
-  function updatePlayer(uint _lastResult, uint _lastWin) private {
-    address _creator = msg.sender;
+  function updatePlayer(address _creator, uint _lastResult, uint _lastWin) private {
     player[_creator].lastResult = _lastResult;
     player[_creator].lastWin = _lastWin;
     player[_creator].totalWin += _lastResult;
     player[_creator].totalPlay += 1;
     player[_creator].totalWon += _lastWin;
+    if (player[_creator].lastWinPayed == 0){
+      player[_creator].unpayedWinnings += 2*_lastWin;
+    }
+    else{
+      player[_creator].unpayedWinnings = 2*_lastWin;
+    }
     emit playerUpdated(player[_creator].lastResult, player[_creator].lastWin, player[_creator].totalWin, player[_creator].totalPlay, player[_creator].totalWon);
   }
 
@@ -109,13 +117,20 @@ contract Coinflip is Ownable, usingProvable{
   function __callback(bytes32 _queryId, string memory _result, bytes memory _proof) public {
     require(msg.sender == provable_cbAddress());
     address creator = queries[_queryId];
-    updatePlayerPayout(creator, 0);
 
     emit logNewQueryResponse("Query response received");
 
     uint randomNumber = uint(keccak256(abi.encodePacked(_result))) % 2;
     updatePlayerQuery(creator, 0, randomNumber);
+    if (randomNumber == 1){
+      var winnings = player[creator].lastBetValue;
+      updatePlayer(creator, randomNumber, winnings);
+    }
+    else{
+      updatePlayer(creator, randomNumber, 0);
+    }
     emit generatedRandomNumber(randomNumber);
+    updatePlayerPayout(creator, 0);
   }
 
   function oracleRandom() private {
@@ -170,35 +185,18 @@ contract Coinflip is Ownable, usingProvable{
   }
 
   function payout() public payable returns(uint){
-    uint winnings;
-    uint winner;
     address payable payCreator = msg.sender;
-    require(player[payCreator].queryId == 0, "No payout, query still pending");
+    require(player[payCreator].lastWinPayed == 0, "No payout available");
 
     uint res = player[payCreator].lastRandomNumber;
-    emit newPayoutInitiated("Payout initiated with result");
-    emit showResult(res);
+    emit newPayoutInitiated("Payout initiated");
 
-    if(res == 0){
-      winner = 0;
-      balance = address(this).balance + player[payCreator].lastBetValue;
-      winnings = 0;
-    }
-    else if(res == 1){
-      winner = 1;
-      winnings = 2* player[payCreator].lastBetValue;
-      balance = address(this).balance - player[payCreator].lastBetValue;
-      if (player[payCreator].lastWinPayed == 0){
-        payCreator.transfer(winnings);
-      }
-    }
-    else{
-      emit uncoughtException("Random Number not updated - RESULT NOT 1 OR 0");
-    }
-    updatePlayer(winner, winnings);
+    payCreator.transfer(player[payCreator].unpayedWinnings);
+
     updatePlayerPayout(payCreator, 1);
-    emit coinflipResult(res, winnings);
-    return winnings;
+    emit payedOut(player[payCreator].unpayedWinnings);
+
+    return player[payCreator].unpayedWinnings;
   }
 
   function depositeBalance() public onlyOwner payable returns(uint) {

@@ -13,6 +13,7 @@ $(document).ready(function() {
     $("#withdrawAll").click(withdrawAll);
     $("#refresh").click(jackpotBalance);
     $("#getPlayer").click(lastResult);
+    $("#initPayout").click(initiatePayout);
 });
 
 function flipCoin(){
@@ -32,14 +33,7 @@ function flipCoin(){
   .on("receipt", function(receipt){
     console.log(receipt);
   }).then(function(){
-    var queryPending = checkForQuery();
-    while (queryPending == 1){
-      setTimeout(() => { console.log('Result not received yet');}, 2000);
-      queryPending = checkForQuery();
-    }
 
-    jackpotBalance();
-    lastResult();
   })
 }
 
@@ -105,7 +99,7 @@ function jackpotBalance(){
 
 function lastResult(){
   contractInstance.methods.getPlayer().call().then(function(res){
-    if (res.lastResult == 1){
+    if (res.lastRandomNumber == 1){
       $("#result").text("Won");
       $("#value_won").text(web3.utils.fromWei(res.lastWin, 'ether'));
     }
@@ -114,27 +108,29 @@ function lastResult(){
       $("#value_won").text(0);
     }
     $("#lastBetAmount").text(web3.utils.fromWei(res.lastBetValue, 'ether'));
+    $("#number_played").text(res.totalPlay);
+    $("#total_won").text(res.totalWon);
+    $("#unpayed_winnings").text(web3.utils.fromWei(res.unpayedWinnings, 'ether'));
+    checkForQuery();
   })
 }
 
 function checkForQuery(){
   contractInstance.methods.isQueryPending().call().then(function(res){
-    if (res == 0){
-      contractInstance.methods.payout().send()
-      .on("transactionHash", function(hash){
-        console.log(hash);
-      })
-      .on("confirmation", function(confirmationNr){
-        console.log(confirmationNr);
-      })
-      .on("receipt", function(receipt){
-        console.log(receipt);
-        jackpotBalance();
-      })
-      return 0;
-    }
-    else{
-      return 1;
-    }
+    $("#query_pending").text(res);
+  })
+}
+
+function initiatePayout(){
+  contractInstance.methods.payout().send()
+  .on("transactionHash", function(hash){
+    console.log(hash);
+  })
+  .on("confirmation", function(confirmationNr){
+    console.log(confirmationNr);
+  })
+  .on("receipt", function(receipt){
+    console.log(receipt);
+    jackpotBalance();
   })
 }
