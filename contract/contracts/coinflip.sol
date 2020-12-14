@@ -21,12 +21,11 @@ contract Coinflip is Ownable, usingProvable{
   event payedOut(uint payout);
   event uncoughtException(string message);
   event hasBeenWithdrawn(uint toTransfer);
-  event playerCreated(string message);
+  event playerCreated(string message, address Creator);
   event playerUpdated(uint lastResult, uint lastWin, uint totalWin, uint totalPlay, uint totalWon);
   event playerQueryUpdate(string message);
   event generatedRandomNumber(uint randomNumber);
-  event logNewProvableQuery(string message);
-  event logNewQueryResponse(string message);
+  event logNewProvableQuery(string message, bytes32 queryId);
   event newPayoutInitiated(string message);
   event currentBetValue(uint value);
 
@@ -36,12 +35,12 @@ contract Coinflip is Ownable, usingProvable{
   address[] private players;
   uint constant NUM_RANDOM_BYTES_REQUESTED = 1;
 
-  function createPlayer() private{
+  function createPlayer(address _creator, uint _betValue) private{
     Player memory newPlayer;
     newPlayer.id = 1;
     newPlayer.queryId = 0;
     newPlayer.lastRandomNumber = 99;
-    newPlayer.lastBetValue = 0;
+    newPlayer.lastBetValue = _betValue;
     newPlayer.lastWin = 0;
     newPlayer.totalWin = 0;
     newPlayer.totalPlay = 0;
@@ -50,9 +49,9 @@ contract Coinflip is Ownable, usingProvable{
     newPlayer.unpayedWinnings = 0;
 
     insertPlayer(newPlayer);
-    players.push(msg.sender);
+    players.push(_creator);
 
-    emit playerCreated("New Player created");
+    emit playerCreated("New Player created. ID:", _creator);
   }
 
   function insertPlayer(Player memory _newPlayer) private{
@@ -95,12 +94,13 @@ contract Coinflip is Ownable, usingProvable{
 
   function updateBetValue(address _creator, uint _betValue) private{
     player[_creator].lastBetValue = _betValue;
+    emit currentBetValue(_betValue+1);
   }
 
 
-  function playerNotExists() private view returns (bool exists){
-    address creator = msg.sender;
-    if (player[creator].id != 0){
+  function playerNotExists(address _creator) private view returns (bool exists){
+    //address creator = msg.sender;
+    if (player[_creator].id != 0){
       exists = false;
     }
     else{
@@ -118,16 +118,14 @@ contract Coinflip is Ownable, usingProvable{
     require(msg.sender == provable_cbAddress());
     address creator = queries[_queryId];
 
-    emit logNewQueryResponse("Query response received");
-
     uint randomNumber = uint(keccak256(abi.encodePacked(_result))) % 2;
     updatePlayerQuery(creator, 0, randomNumber);
     if (randomNumber == 1){
       uint winnings = player[creator].lastBetValue;
-      updatePlayer(creator, randomNumber, winnings);
+      updatePlayer(creator, 1, winnings);
     }
     else{
-      updatePlayer(creator, randomNumber, 0);
+      updatePlayer(creator, 0, 0);
     }
     emit generatedRandomNumber(randomNumber);
     updatePlayerPayout(creator, 0);
@@ -140,7 +138,7 @@ contract Coinflip is Ownable, usingProvable{
     bytes32 queryId = provable_newRandomDSQuery( QUERY_EXECUTION_DELAY, NUM_RANDOM_BYTES_REQUESTED, GAS_FOR_CALLBACK);
     updatePlayerQuery(creator, queryId, 100);
     balance = address(this).balance;
-    emit logNewProvableQuery("Provable query sent, waiting for response...");
+    emit logNewProvableQuery("Provable query sent, waiting for response...", queryId);
   }
 
 
@@ -149,15 +147,17 @@ contract Coinflip is Ownable, usingProvable{
     address creator = msg.sender;
     //uint winnings;
     //uint winner;
-    emit currentBetValue(bet_value);
     require(msg.value <= address(this).balance, "Insufficient contract balance");
     require(player[creator].queryId == 0, "Current result pending");
 
-    if (playerNotExists()){
-      createPlayer();
+    if (playerNotExists(creator)){
+      createPlayer(creator, bet_value);
+    }
+    else{
+      updateBetValue(creator, bet_value);
     }
 
-    updateBetValue(creator, bet_value);
+    emit currentBetValue(bet_value);
 
     oracleRandom();
 
@@ -188,7 +188,7 @@ contract Coinflip is Ownable, usingProvable{
     address payable payCreator = msg.sender;
     require(player[payCreator].lastWinPayed == 0, "No payout available");
 
-    uint res = player[payCreator].lastRandomNumber;
+    //uint res = player[payCreator].lastRandomNumber;
     emit newPayoutInitiated("Payout initiated");
 
     payCreator.transfer(player[payCreator].unpayedWinnings);

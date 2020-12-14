@@ -46,22 +46,15 @@ var abi = [
         "internalType": "string",
         "name": "message",
         "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "queryId",
+        "type": "bytes32"
       }
     ],
     "name": "logNewProvableQuery",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "message",
-        "type": "string"
-      }
-    ],
-    "name": "logNewQueryResponse",
     "type": "event"
   },
   {
@@ -98,6 +91,12 @@ var abi = [
         "internalType": "string",
         "name": "message",
         "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "Creator",
+        "type": "address"
       }
     ],
     "name": "playerCreated",
