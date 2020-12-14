@@ -1,6 +1,6 @@
 var web3 = new Web3(Web3.givenProvider);
 var contractInstance;
-var contractAddress = "0x292C803dBBBee3F5251298d1D7B83aaDfF94C87a";
+var contractAddress = "0xfE724bFDEfa111d1a149D87282f2708A92DB47E4";
 
 $(document).ready(function() {
     window.ethereum.enable().then(function(accounts){
@@ -14,6 +14,7 @@ $(document).ready(function() {
     $("#refresh").click(jackpotBalance);
     $("#getPlayer").click(lastResult);
     $("#initPayout").click(initiatePayout);
+    $("#queryCheck").click(checkForQuery);
 });
 
 function flipCoin(){
