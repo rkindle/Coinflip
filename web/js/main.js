@@ -1,6 +1,6 @@
 var web3 = new Web3(Web3.givenProvider);
 var contractInstance;
-var contractAddress = "0xa0718A9FE169320965847cED51316dEBF60C454A";
+var contractAddress = "0x53812eedfF86c17e0a4Ab47460C282fd98800a79";
 
 $(document).ready(function() {
     window.ethereum.enable().then(function(accounts){
@@ -34,7 +34,7 @@ function flipCoin(){
   .on("receipt", function(receipt){
     console.log(receipt);
   }).then(function(){
-
+    lastResult();
   })
 }
 
@@ -99,7 +99,16 @@ function jackpotBalance(){
 }
 
 function lastResult(){
+  checkForQuery();
+  updatePlayer();
+}
+
+function updatePlayer(){
   contractInstance.methods.getPlayer().call().then(function(res){
+    $("#lastBetAmount").text(web3.utils.fromWei(res.lastBetValue, 'ether'));
+    $("#number_played").text(res.totalPlay);
+    $("#total_won").text(web3.utils.fromWei(res.totalWon, 'ether'));
+    $("#unpayed_winnings").text(web3.utils.fromWei(res.unpayedWinnings, 'ether'));
     if (res.lastRandomNumber == 1){
       $("#result").text("Won");
       $("#value_won").text(web3.utils.fromWei(res.lastWin, 'ether'));
@@ -108,12 +117,7 @@ function lastResult(){
       $("#result").text("Lost");
       $("#value_won").text(0);
     }
-    $("#lastBetAmount").text(web3.utils.fromWei(res.lastBetValue, 'ether'));
-    $("#number_played").text(res.totalPlay);
-    $("#total_won").text(res.totalWon);
-    $("#unpayed_winnings").text(web3.utils.fromWei(res.unpayedWinnings, 'ether'));
-    checkForQuery();
-  })
+  });
 }
 
 function checkForQuery(){
@@ -121,6 +125,9 @@ function checkForQuery(){
   setTimeout(() => {
     contractInstance.methods.isQueryPending().call().then(function(res){
     $("#query_pending").text(res);
+    if(res == 0){
+      updatePlayer();
+    }
   });
 }, 2000);
 }
@@ -136,5 +143,6 @@ function initiatePayout(){
   .on("receipt", function(receipt){
     console.log(receipt);
     jackpotBalance();
+    lastResult();
   })
 }

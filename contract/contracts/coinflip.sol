@@ -83,6 +83,9 @@ contract Coinflip is Ownable, usingProvable{
 
   function updatePlayerPayout(address _creator, uint _lastWinPayed) private{
     player[_creator].lastWinPayed = _lastWinPayed;
+    if (_lastWinPayed == 1){
+      player[_creator].unpayedWinnings = 0;
+    }
   }
 
   function updatePlayerQuery(address _creator, bytes32 _queryId, uint _randomNumber) private {
