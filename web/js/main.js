@@ -1,6 +1,6 @@
 var web3 = new Web3(Web3.givenProvider);
 var contractInstance;
-var contractAddress = "0xE322ebE8fBdBe0f195F4b85cB58dDB9668FAC843";
+var contractAddress = "0xa0718A9FE169320965847cED51316dEBF60C454A";
 
 $(document).ready(function() {
     window.ethereum.enable().then(function(accounts){
@@ -117,9 +117,12 @@ function lastResult(){
 }
 
 function checkForQuery(){
-  contractInstance.methods.isQueryPending().call().then(function(res){
+  $("#query_pending").text("Checking");
+  setTimeout(() => {
+    contractInstance.methods.isQueryPending().call().then(function(res){
     $("#query_pending").text(res);
-  })
+  });
+}, 2000);
 }
 
 function initiatePayout(){
