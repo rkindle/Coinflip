@@ -1,6 +1,7 @@
 var web3 = new Web3(Web3.givenProvider);
 var contractInstance;
 var contractAddress = "0x53812eedfF86c17e0a4Ab47460C282fd98800a79";
+var coinSelection = "99";
 
 $(document).ready(function() {
     window.ethereum.enable().then(function(accounts){
@@ -15,7 +16,21 @@ $(document).ready(function() {
     $("#getPlayer").click(lastResult);
     $("#initPayout").click(initiatePayout);
     $("#queryCheck").click(checkForQuery);
+    $("#coin_heads").click(selectHeads);
+    $("#coin_tails").click(selectTails);
 });
+
+function selectHeads(){
+  coinSelection = 1;
+  $("#coin_tails").hide();
+  console.log("Heads selected");
+}
+
+function selectTails(){
+  coinSelection = 0;
+  $("#coin_heads").hide();
+  console.log("Tails selected");
+}
 
 function flipCoin(){
   var bet_value = $("#bet_value").val();
@@ -109,7 +124,7 @@ function updatePlayer(){
     $("#number_played").text(res.totalPlay);
     $("#total_won").text(web3.utils.fromWei(res.totalWon, 'ether'));
     $("#unpayed_winnings").text(web3.utils.fromWei(res.unpayedWinnings, 'ether'));
-    if (res.lastRandomNumber == 1){
+    if (res.lastRandomNumber == coinSelection){
       $("#result").text("Won");
       $("#value_won").text(web3.utils.fromWei(res.lastWin, 'ether'));
     }
@@ -127,6 +142,8 @@ function checkForQuery(){
     $("#query_pending").text(res);
     if(res == 0){
       updatePlayer();
+      $("#coin_heads").show();
+      $("#coin_tails").show();
     }
   });
 }, 2000);
