@@ -1,6 +1,6 @@
 var web3 = new Web3(Web3.givenProvider);
 var contractInstance;
-var contractAddress = "0x53812eedfF86c17e0a4Ab47460C282fd98800a79";
+var contractAddress = "0x491e368A8D5A12Ca5667422e7Bab77e58080f8f0";
 var coinSelection = "99";
 
 $(document).ready(function() {
@@ -18,6 +18,7 @@ $(document).ready(function() {
     $("#queryCheck").click(checkForQuery);
     $("#coin_heads").click(selectHeads);
     $("#coin_tails").click(selectTails);
+    $("#players").click(getNumberOfPlayers);
 });
 
 function selectHeads(){
@@ -39,7 +40,7 @@ function flipCoin(){
     value: web3.utils.toWei(bet_value,"ether")
   }
 
-  contractInstance.methods.coinFlip().send(config)
+  contractInstance.methods.coinFlip(coinSelection).send(config)
   .on("transactionHash", function(hash){
     console.log(hash);
   })
@@ -49,7 +50,9 @@ function flipCoin(){
   .on("receipt", function(receipt){
     console.log(receipt);
   }).then(function(){
-    lastResult();
+    //lastResult();
+    $("#coin_heads").show();
+    $("#coin_tails").show();
   })
 }
 
@@ -70,9 +73,8 @@ function contractDeposite(){
   .on("receipt", function(receipt){
     console.log(receipt);
     //alert("Contract Balance increased");
-    jackpotBalance();
-  })
-
+    //jackpotBalance();
+  });
 }
 
 function withdrawPartial(){
@@ -88,7 +90,7 @@ function withdrawPartial(){
   .on("receipt", function(receipt){
     console.log(receipt);
     alert(amount + " ETH has been withdrawn");
-    jackpotBalance();
+    //jackpotBalance();
   })
 }
 
@@ -103,14 +105,23 @@ function withdrawAll(){
   .on("receipt", function(receipt){
     console.log(receipt);
     alert("Contract balance has been withdrawn");
-    jackpotBalance();
+    //jackpotBalance();
   })
 }
 
 function jackpotBalance(){
   contractInstance.methods.getBalance().call().then(function(res){
     $("#balance").text(web3.utils.fromWei(res, 'ether'));
-  })
+  });
+  contractInstance.methods.checkAvailableBalance().call().then(function(res){
+    $("#availableBalance").text(web3.utils.fromWei(res, 'ether'));
+  });
+}
+
+function getNumberOfPlayers(){
+  contractInstance.methods.getNumberofPlayers().call().then(function(res){
+    $("#numberOfPlayers").text(res);
+  });
 }
 
 function lastResult(){
@@ -120,18 +131,18 @@ function lastResult(){
 
 function updatePlayer(){
   contractInstance.methods.getPlayer().call().then(function(res){
-    $("#lastBetAmount").text(web3.utils.fromWei(res.lastBetValue, 'ether'));
+    //$("#lastBetAmount").text(web3.utils.fromWei(res.lastBetValue, 'ether'));
     $("#number_played").text(res.totalPlay);
     $("#total_won").text(web3.utils.fromWei(res.totalWon, 'ether'));
     $("#unpayed_winnings").text(web3.utils.fromWei(res.unpayedWinnings, 'ether'));
-    if (res.lastRandomNumber == coinSelection){
+    /*if (res.lastRandomNumber == coinSelection){
       $("#result").text("Won");
       $("#value_won").text(web3.utils.fromWei(res.lastWin, 'ether'));
     }
     else{
       $("#result").text("Lost");
       $("#value_won").text(0);
-    }
+    }*/
   });
 }
 
@@ -142,8 +153,6 @@ function checkForQuery(){
     $("#query_pending").text(res);
     if(res == 0){
       updatePlayer();
-      $("#coin_heads").show();
-      $("#coin_tails").show();
     }
   });
 }, 2000);
@@ -159,7 +168,7 @@ function initiatePayout(){
   })
   .on("receipt", function(receipt){
     console.log(receipt);
-    jackpotBalance();
-    lastResult();
+    //jackpotBalance();
+    //lastResult();
   })
 }
