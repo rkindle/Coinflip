@@ -1,13 +1,37 @@
 var web3 = new Web3(Web3.givenProvider);
 var contractInstance;
-var contractAddress = "0x491e368A8D5A12Ca5667422e7Bab77e58080f8f0";
+var contractAddress = "0xb69561B73f386D17B583Ec41c134A8a928169e14";
 var coinSelection = "99";
+var userAccount = "Not Connected";
 
 $(document).ready(function() {
     window.ethereum.enable().then(function(accounts){
       contractInstance = new web3.eth.Contract(abi, contractAddress, {from: accounts[0]});
+      userAccount = accounts[0];
       console.log(contractInstance);
+      console.log(userAccount);
+      $("#playerAdress").text(userAccount);
     });
+
+    /*
+      contractInstance.event.queryResultRecieved({
+        filter:{userAccount}
+      ).on('data', function(event){
+        var data = event.returnValues;
+        console.log(data); // same results as the optional callback above
+      }).on('error', console.error);*/
+
+    contractInstance.queryResultRecieved({filter:{player: userAccount}
+    }).watch(function(error, result){
+      if (!error){
+        console.log(data);
+        console.log("Player " + result.player);
+        console.log("Won " + result.won);
+        console.log("Random Number " + result.randomNumber);
+        console.log("Heads or Tails " + result.headstails);
+      }
+    });
+
     $("#flip_coin").click(flipCoin);
     $("#deposite").click(contractDeposite);
     $("#withdrawPartial").click(withdrawPartial);
@@ -19,6 +43,7 @@ $(document).ready(function() {
     $("#coin_heads").click(selectHeads);
     $("#coin_tails").click(selectTails);
     $("#players").click(getNumberOfPlayers);
+
 });
 
 function selectHeads(){
@@ -53,6 +78,7 @@ function flipCoin(){
     //lastResult();
     $("#coin_heads").show();
     $("#coin_tails").show();
+    eventListener();
   })
 }
 
@@ -73,7 +99,7 @@ function contractDeposite(){
   .on("receipt", function(receipt){
     console.log(receipt);
     //alert("Contract Balance increased");
-    //jackpotBalance();
+    jackpotBalance();
   });
 }
 
@@ -90,7 +116,7 @@ function withdrawPartial(){
   .on("receipt", function(receipt){
     console.log(receipt);
     alert(amount + " ETH has been withdrawn");
-    //jackpotBalance();
+    jackpotBalance();
   })
 }
 
@@ -105,7 +131,7 @@ function withdrawAll(){
   .on("receipt", function(receipt){
     console.log(receipt);
     alert("Contract balance has been withdrawn");
-    //jackpotBalance();
+    jackpotBalance();
   })
 }
 
@@ -113,7 +139,7 @@ function jackpotBalance(){
   contractInstance.methods.getBalance().call().then(function(res){
     $("#balance").text(web3.utils.fromWei(res, 'ether'));
   });
-  contractInstance.methods.checkAvailableBalance().call().then(function(res){
+  contractInstance.methods.getAvailableBalance().call().then(function(res){
     $("#availableBalance").text(web3.utils.fromWei(res, 'ether'));
   });
 }
@@ -153,9 +179,9 @@ function checkForQuery(){
     $("#query_pending").text(res);
     if(res == 0){
       updatePlayer();
-    }
-  });
-}, 2000);
+      }
+    });
+  }, 2000);
 }
 
 function initiatePayout(){

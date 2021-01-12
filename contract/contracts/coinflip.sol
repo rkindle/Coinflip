@@ -35,9 +35,15 @@ contract Coinflip is Ownable, usingProvable{
   //event generatedRandomNumber(uint randomNumber);
   event logNewProvableQuery(string message, address creator, bytes32 queryId);
   //event currentBetValue(uint value);
-  event newQueryResultRecieved(uint randomNumber, uint headstails, uint won, address player);
+  event queryResultRecieved(
+    address indexed player,
+    uint won,
+    uint randomNumber,
+    uint headstails
+    );
 
   uint private balance;
+  uint private availableBalance;
   mapping (address => Player) private player;
   //mapping (bytes32 => address) private queries; //Mapping to link adresses to queries
   mapping (bytes32 => bet) private bets;
@@ -173,7 +179,7 @@ contract Coinflip is Ownable, usingProvable{
     uint won = hasWon(_queryId);
 
     //emit generatedRandomNumber(randomNumber);
-    emit newQueryResultRecieved(randomNumber, bets[_queryId].headstails, won, bets[_queryId].creator);
+    emit queryResultRecieved(bets[_queryId].creator, won, randomNumber, bets[_queryId].headstails);
     //updatePlayerPayout(creator, 0);
   }
 
@@ -184,8 +190,9 @@ contract Coinflip is Ownable, usingProvable{
     uint GAS_FOR_CALLBACK = 2000000;
     bytes32 queryId = provable_newRandomDSQuery( QUERY_EXECUTION_DELAY, NUM_RANDOM_BYTES_REQUESTED, GAS_FOR_CALLBACK);
     updatePlayerQuery(creator, 1);
-    //balance = address(this).balance;
+    balance = address(this).balance;
     emit logNewProvableQuery("Provable query sent, waiting for response...", creator, queryId);
+    checkAvailableBalance();
     return queryId;
   }
 
@@ -217,6 +224,7 @@ contract Coinflip is Ownable, usingProvable{
     payCreator.transfer(player[payCreator].unpayedWinnings);
 
     updatePlayerPayout(payCreator, 1);  //Set the payout to has been executed
+    checkAvailableBalance();
 
     return player[payCreator].unpayedWinnings;  //Will return 0 due to the last change on updatePlayerPayout - add variable to carry value
   }
@@ -224,6 +232,7 @@ contract Coinflip is Ownable, usingProvable{
   function depositeBalance() public onlyOwner payable returns(uint) {
     //Function to add balance to the contract
       uint newBalance = address(this).balance + msg.value;
+      checkAvailableBalance();
       balance = newBalance;
       return newBalance;
   }
@@ -231,21 +240,23 @@ contract Coinflip is Ownable, usingProvable{
   function withdrawAll() public onlyOwner payable returns(uint) {
     //Function to withdraw entire contract balance
     //Changed: Consider the unpayed winnings of the players for withdrawable balance
-    uint availableBalance = checkAvailableBalance();
-    require(address(this).balance > availableBalance, "No balance to be withdrawn");
+    uint currentAvailableBalance = checkAvailableBalance();
+    require(currentAvailableBalance > 0, "No balance to be withdrawn");
 
-    uint toTransfer = availableBalance;
+    uint toTransfer = currentAvailableBalance;
       //balance = 0;
+    checkAvailableBalance();
     msg.sender.transfer(toTransfer);
     //emit hasBeenWithdrawn(toTransfer);
+    //Add Assert statement currentAvailableBalance == 0
     return toTransfer;
   }
 
   function withdrawAmount(uint _amount) public onlyOwner payable returns(uint) {
     //Function to withdraw an amount to be specified
     //Changed: Consider the upayed winnings of the players for withdrawable balance
-    uint availableBalance = checkAvailableBalance();
-    require(_amount <= availableBalance, "Requested amount exeeds available balance");
+    uint currentAvailableBalance = checkAvailableBalance();
+    require(_amount <= currentAvailableBalance, "Requested amount exeeds available balance");
       //balance = address(this).balance - _amount;
     msg.sender.transfer(_amount);
     //emit hasBeenWithdrawn(_amount);
@@ -280,22 +291,30 @@ contract Coinflip is Ownable, usingProvable{
       updatePlayer(creator, 1, winnings);
       //Set Player payout to unpayed
       updatePlayerPayout(creator, 0);
+      checkAvailableBalance();
       return 1;
     }
     else{
       updatePlayer(creator, 0, 0);
+      checkAvailableBalance();
       return 0;
     }
   }
 
-  function checkAvailableBalance() public returns(uint){
+  function checkAvailableBalance() private returns(uint){
     //Add function to check for all unpayed winnings and update balance
     uint unpayedWinnings = 0;
-    for (uint i = 0; i < players.length; i++){
-      unpayedWinnings += player[players[i]].unpayedWinnings;
+    if (players.length > 0){
+      for (uint i = 0; i < players.length; i++){
+        unpayedWinnings += player[players[i]].unpayedWinnings;
+      }
     }
-    balance = address(this).balance - unpayedWinnings;
-    return balance;
+    availableBalance = address(this).balance - unpayedWinnings;
+    return availableBalance;
+  }
+
+  function getAvailableBalance() public view returns(uint){
+    return availableBalance;
   }
 
   function getNumberofPlayers() public view returns(uint){
