@@ -9,10 +9,9 @@ $(document).ready(function() {
       contractInstance = new web3.eth.Contract(abi, contractAddress, {from: accounts[0]});
       userAccount = accounts[0];
       console.log(contractInstance);
-      console.log(userAccount);
       $("#playerAdress").text(userAccount);
     });
-
+    //contractInstance.event.queryResultReceived({filter: {player: userAccount}, fromBlock:0}, function(error, event){console.log(event)});
     /*
       contractInstance.event.queryResultRecieved({
         filter:{userAccount}
@@ -21,7 +20,7 @@ $(document).ready(function() {
         console.log(data); // same results as the optional callback above
       }).on('error', console.error);*/
 
-    contractInstance.queryResultRecieved({filter:{player: userAccount}
+    /*contractInstance.queryResultRecieved({filter:{player: userAccount}
     }).watch(function(error, result){
       if (!error){
         console.log(data);
@@ -30,7 +29,7 @@ $(document).ready(function() {
         console.log("Random Number " + result.randomNumber);
         console.log("Heads or Tails " + result.headstails);
       }
-    });
+    });*/
 
     $("#flip_coin").click(flipCoin);
     $("#deposite").click(contractDeposite);
@@ -45,6 +44,8 @@ $(document).ready(function() {
     $("#players").click(getNumberOfPlayers);
 
 });
+
+//contractInstance.events.queryResultReceived({filter: {player: userAccount}, fromBlock:0}, function(error, event){console.log(event)});
 
 function selectHeads(){
   coinSelection = 1;
@@ -64,22 +65,26 @@ function flipCoin(){
   var config = {
     value: web3.utils.toWei(bet_value,"ether")
   }
-
-  contractInstance.methods.coinFlip(coinSelection).send(config)
-  .on("transactionHash", function(hash){
-    console.log(hash);
-  })
-  .on("confirmation", function(confirmationNr){
-    console.log(confirmationNr);
-  })
-  .on("receipt", function(receipt){
-    console.log(receipt);
-  }).then(function(){
-    //lastResult();
-    $("#coin_heads").show();
-    $("#coin_tails").show();
-    eventListener();
-  })
+  if (coinSelection == 99){
+    alert('No Coin Side selected')
+  }
+  else{
+    contractInstance.methods.coinFlip(coinSelection).send(config)
+    .on("transactionHash", function(hash){
+      console.log(hash);
+    })
+    .on("confirmation", function(confirmationNr){
+      console.log(confirmationNr);
+    })
+    .on("receipt", function(receipt){
+      console.log(receipt);
+    }).then(function(){
+      //lastResult();
+      $("#coin_heads").show();
+      $("#coin_tails").show();
+      coinSelection = 99;
+    })
+  }
 }
 
 function contractDeposite(){
