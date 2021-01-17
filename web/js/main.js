@@ -9,27 +9,34 @@ $(document).ready(function() {
       contractInstance = new web3.eth.Contract(abi, contractAddress, {from: accounts[0]});
       userAccount = accounts[0];
       console.log(contractInstance);
+
+      contractInstance.events.queryResultRecieved({
+          filter:{userAccount}
+        }).on('data', function(event){
+          var data = event.returnValues;
+          if (data.won == 1){
+            $("#result").text("Won");
+          }
+          else{
+            $("#result").text("Lost");
+          }
+          if(data.headstails == 1){
+            $("#coin_Selection").text("Head");
+          }
+          else{
+            $("#coin_Selection").text("Tail");
+          }
+          if(data.randomNumber == 1){
+            $("#coinThrow").text("Head");
+          }
+          else{
+            $("#coinThrow").text("Tail");
+          }
+          lastResult();
+          jackpotBalance();
+        }).on('error', console.error)
       $("#playerAdress").text(userAccount);
     });
-    //contractInstance.event.queryResultReceived({filter: {player: userAccount}, fromBlock:0}, function(error, event){console.log(event)});
-    /*
-      contractInstance.event.queryResultRecieved({
-        filter:{userAccount}
-      ).on('data', function(event){
-        var data = event.returnValues;
-        console.log(data); // same results as the optional callback above
-      }).on('error', console.error);*/
-
-    /*contractInstance.queryResultRecieved({filter:{player: userAccount}
-    }).watch(function(error, result){
-      if (!error){
-        console.log(data);
-        console.log("Player " + result.player);
-        console.log("Won " + result.won);
-        console.log("Random Number " + result.randomNumber);
-        console.log("Heads or Tails " + result.headstails);
-      }
-    });*/
 
     $("#flip_coin").click(flipCoin);
     $("#deposite").click(contractDeposite);
@@ -45,7 +52,6 @@ $(document).ready(function() {
 
 });
 
-//contractInstance.events.queryResultReceived({filter: {player: userAccount}, fromBlock:0}, function(error, event){console.log(event)});
 
 function selectHeads(){
   coinSelection = 1;
@@ -72,6 +78,8 @@ function flipCoin(){
     contractInstance.methods.coinFlip(coinSelection).send(config)
     .on("transactionHash", function(hash){
       console.log(hash);
+      $("#coin_heads").show();
+      $("#coin_tails").show();
     })
     .on("confirmation", function(confirmationNr){
       console.log(confirmationNr);
@@ -79,9 +87,7 @@ function flipCoin(){
     .on("receipt", function(receipt){
       console.log(receipt);
     }).then(function(){
-      //lastResult();
-      $("#coin_heads").show();
-      $("#coin_tails").show();
+      checkForQuery();
       coinSelection = 99;
     })
   }
@@ -103,7 +109,6 @@ function contractDeposite(){
   })
   .on("receipt", function(receipt){
     console.log(receipt);
-    //alert("Contract Balance increased");
     jackpotBalance();
   });
 }
@@ -162,18 +167,10 @@ function lastResult(){
 
 function updatePlayer(){
   contractInstance.methods.getPlayer().call().then(function(res){
-    //$("#lastBetAmount").text(web3.utils.fromWei(res.lastBetValue, 'ether'));
     $("#number_played").text(res.totalPlay);
+    $("#number_won").text(res.totalWin);
     $("#total_won").text(web3.utils.fromWei(res.totalWon, 'ether'));
     $("#unpayed_winnings").text(web3.utils.fromWei(res.unpayedWinnings, 'ether'));
-    /*if (res.lastRandomNumber == coinSelection){
-      $("#result").text("Won");
-      $("#value_won").text(web3.utils.fromWei(res.lastWin, 'ether'));
-    }
-    else{
-      $("#result").text("Lost");
-      $("#value_won").text(0);
-    }*/
   });
 }
 
@@ -181,9 +178,12 @@ function checkForQuery(){
   $("#query_pending").text("Checking");
   setTimeout(() => {
     contractInstance.methods.isQueryPending().call().then(function(res){
-    $("#query_pending").text(res);
-    if(res == 0){
-      updatePlayer();
+      if(res == 1){
+        $("#query_pending").text("Pending Queries");
+      }
+      else{
+        $("#query_pending").text("No Pending Queries");
+        updatePlayer();
       }
     });
   }, 2000);
@@ -199,7 +199,7 @@ function initiatePayout(){
   })
   .on("receipt", function(receipt){
     console.log(receipt);
-    //jackpotBalance();
-    //lastResult();
+    jackpotBalance();
+    lastResult();
   })
 }
