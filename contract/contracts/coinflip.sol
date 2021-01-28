@@ -220,13 +220,16 @@ contract Coinflip is Ownable, usingProvable{
     //Function to payout the unpayed winnings
     address payable payCreator = msg.sender;
     require(player[payCreator].lastWinPayed == 0, "No payout available");
+    //Check
+    var amountToWithdraw = player[payCreator].unpayedWinnings;
+    //Effect
+    updatePlayerPayout(payCreator, 1);  //Set the payout to has been executed; Improved to follow CHECK - EFFECT - INTERACTION best practive
+    //Interaction
+    payCreator.transfer(amountToWithdraw);
 
-    payCreator.transfer(player[payCreator].unpayedWinnings);
-
-    updatePlayerPayout(payCreator, 1);  //Set the payout to has been executed
     checkAvailableBalance();
 
-    return player[payCreator].unpayedWinnings;  //Will return 0 due to the last change on updatePlayerPayout - add variable to carry value
+    return amountToWithdraw;
   }
 
   function depositeBalance() public onlyOwner payable returns(uint) {
