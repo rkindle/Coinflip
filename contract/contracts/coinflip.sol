@@ -1,40 +1,13 @@
-import "./Ownable.sol";
-import "./provableAPI.sol";
 pragma solidity 0.5.12;
 
-contract Coinflip is Ownable, usingProvable{
+import "./Ownable.sol";
+import "./provableAPI.sol";
+import "./Storage.sol"
 
-  //Struct to hold the player statistics
-  struct Player{
-    uint id;
-    uint queryPending;
-    //uint lastRandomNumber;
-    //uint lastBetValue;
-    uint lastResult;
-    uint lastWin;
-    uint totalWin;
-    uint totalPlay;
-    uint totalWon;
-    uint lastWinPayed;
-    uint unpayedWinnings;
-  }
+contract Coinflip is Ownable, usingProvable, Storage{
 
-  //Struct to hold only the individual bets
-  struct bet{
-    address creator;
-    uint betValue;
-    uint result;
-    uint headstails;
-  }
-
-  //event uncoughtException(string message);
-  //event hasBeenWithdrawn(uint toTransfer);
   event playerCreated(string message, address creator);
-  //event playerUpdated(uint lastResult, uint lastWin, uint totalWin, uint totalPlay, uint totalWon);
-  //event playerQueryUpdate(string message);
-  //event generatedRandomNumber(uint randomNumber);
   event logNewProvableQuery(string message, address creator, bytes32 queryId);
-  //event currentBetValue(uint value);
   event queryResultRecieved(
     address indexed player,
     uint won,
