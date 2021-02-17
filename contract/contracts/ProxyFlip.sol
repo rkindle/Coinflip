@@ -1,7 +1,7 @@
 pragma solidity 0.5.12;
 
 import "./Storage.sol";
-import "./Ownable.sol"
+import "./Ownable.sol";
 
 contract ProxyFlip is Storage{
 
@@ -11,7 +11,7 @@ contract ProxyFlip is Storage{
     currentAddress = _currentAddress;
   }
 
-  function upgrade(address _newAddress) public{
+  function upgrade(address _newAddress) public onlyOwner whenPaused{
     currentAddress = _newAddress;
   }
 

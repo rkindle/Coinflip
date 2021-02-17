@@ -29,6 +29,6 @@ contract Storage{
 
   address public owner;
   bool public _initialized;
-
+  
 
 }
