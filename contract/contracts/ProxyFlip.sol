@@ -2,8 +2,9 @@ pragma solidity 0.5.12;
 
 import "./Storage.sol";
 import "./Ownable.sol";
+import "./Pausable.sol";
 
-contract ProxyFlip is Storage{
+contract ProxyFlip is Ownable, Storage, isPausable{
 
   address currentAddress;
 
