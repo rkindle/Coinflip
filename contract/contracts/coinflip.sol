@@ -16,12 +16,6 @@ contract Coinflip is Ownable, usingProvable, isPausable, Storage{
     uint headstails
     );
 
-  uint private balance;
-  uint private availableBalance;
-  mapping (address => Player) private player;
-  //mapping (bytes32 => address) private queries; //Mapping to link adresses to queries
-  mapping (bytes32 => bet) private bets;
-  address[] private players;
   uint constant NUM_RANDOM_BYTES_REQUESTED = 1;
 
 

@@ -7,6 +7,13 @@ contract Storage{
   mapping (string => string) _stringStorage;
   mapping (string => bytes4) _bytesStorage;
 
+
+  uint public balance;
+  uint public availableBalance;
+  mapping (address => Player) player;
+  mapping (bytes32 => bet) bets;
+  address[] players;
+
   struct Player{
     uint id;
     uint queryPending;
@@ -29,6 +36,6 @@ contract Storage{
 
   address public owner;
   bool public _initialized;
-  
+
 
 }
