@@ -2,8 +2,8 @@ pragma solidity 0.5.12;
 
 import "./Ownable.sol";
 import "./provableAPI.sol";
-import "./Storage.sol"
-import "./Pausable.sol"
+import "./Storage.sol";
+import "./Pausable.sol";
 
 contract Coinflip is Ownable, usingProvable, isPausable, Storage{
 
@@ -232,7 +232,7 @@ contract Coinflip is Ownable, usingProvable, isPausable, Storage{
     address payable payCreator = msg.sender;
     require(player[payCreator].lastWinPayed == 0, "No payout available");
     //Check
-    var amountToWithdraw = player[payCreator].unpayedWinnings;
+    uint amountToWithdraw = player[payCreator].unpayedWinnings;
     //Effect
     updatePlayerPayout(payCreator, 1);  //Set the payout to has been executed; Improved to follow CHECK - EFFECT - INTERACTION best practive
     //Interaction

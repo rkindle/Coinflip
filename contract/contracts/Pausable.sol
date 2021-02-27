@@ -11,12 +11,12 @@ contract isPausable is Ownable{
   }
 
   modifier whenNotPaused(){
-    require(!_paused):
+    require(!_paused);
     _;
   }
 
   modifier whenPaused(){
-    rewuire(_paused):
+    require(_paused);
     _;
   }
 
