@@ -1,6 +1,8 @@
 var web3 = new Web3(Web3.givenProvider);
 var contractInstance;
-var contractAddress = "0x8bEa7B0a7eA6E4a2eB6DC0e3300Bb968cc9FD22c";
+var contractAddress = "0x3380C3552Be3EBeAD90148c9C1E9d273D03fFA78";
+//Main: 0x3380C3552Be3EBeAD90148c9C1E9d273D03fFA78
+//Proxy: 0x880a084927b0A7F07c96a739C0ac439E482a0ab1
 var coinSelection = "99";
 var userAccount = "Not Connected";
 
